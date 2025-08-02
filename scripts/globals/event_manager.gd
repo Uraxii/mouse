@@ -43,6 +43,8 @@ func _on_command(cmd: Command) -> void:
             search(cmd.target)
         "help":
             help()
+        "objectives":
+            Global.objectives.show_current_objectives()
         _:
             signals.message.emit("You don't know how to %s" % [cmd])
 
@@ -52,9 +54,14 @@ func drop(item_name: String) -> void:
     
     if not item:
         signals.message.emit("Could not drop %s." % item_name)
+        return
     
     player.current_room.inventory.add_item(item)
-    signals.message.emit("You put the [color=yellow]%s[/color] down." % item.display_name)
+    signals.message.emit(
+        "You put the [color=yellow]%s[/color] down." % item.display_name)
+    
+    # Emit objective progress for successful drop
+    signals.objective_progress.emit("drop", item.display_name)
 
 
 func inspect(target_str) -> void:
@@ -73,6 +80,7 @@ func inspect(target_str) -> void:
         return
         
     signals.message.emit(function.call())
+    signals.objective_progress.emit("inspect", target_str)
 
 
 func look(target_str: String) -> void:
@@ -91,6 +99,7 @@ func look(target_str: String) -> void:
         return
         
     signals.message.emit(function.call())
+    signals.objective_progress.emit("look", target_str)
 
 
 func pickup(target_str: String) -> void:
@@ -102,12 +111,15 @@ func pickup(target_str: String) -> void:
         return
     
     if not item:
-        signals.message.emit("Hrm... No [color=yellow]%s[/color] here." % [target_str])
+        signals.message.emit(
+            "Hrm... No [color=yellow]%s[/color] here." % [target_str])
         return
         
     player.inventory.add_item(item)
     signals.message.emit(
-        "The [color=yello]%s[/color] was placed into your bag." % item.display_name)
+        "The [color=yellow]%s[/color] was placed into your bag." % item.display_name)
+        
+    signals.objective_progress.emit("pickup", item.display_name)
 
 
 func search(target_str: String) -> void:
@@ -124,6 +136,9 @@ func search(target_str: String) -> void:
     
     signals.message.emit(target.search())
     
+    var search_target = target_str if target_str else "room"
+    signals.objective_progress.emit("search", search_target)
+
 
 func help() -> void:
     var help_message = """[center][b]HELP[/b][/center]

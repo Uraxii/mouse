@@ -3,6 +3,7 @@ class_name Map extends Resource
 
 @export var time := 100
 @export var layout: Array[Room] = []
+@export var objectives: Array[Objective] = []
 
 
 #region Public Functions

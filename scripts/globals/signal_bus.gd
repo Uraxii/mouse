@@ -12,4 +12,7 @@ signal command(cmd: Command)
 signal move_player(room: Room)
 
 @warning_ignore("unused_signal")
+signal objective_progress(action: String, target: String)
+
+@warning_ignore("unused_signal")
 signal update_room(room: Room)
