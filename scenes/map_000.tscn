@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dqpwehwje5f1v"]
+[gd_scene load_steps=4 format=3 uid="uid://dqpwehwje5f1v"]
 
 [ext_resource type="Script" uid="uid://dxt8lt2qx0xir" path="res://scripts/map_node.gd" id="1_lctkj"]
 [ext_resource type="PackedScene" uid="uid://cnh2reo36sn7d" path="res://scenes/room.tscn" id="2_xj7f0"]
+[ext_resource type="PackedScene" uid="uid://by2y6mn7dc6g7" path="res://scenes/items/star_key.tscn" id="3_tqrys"]
 
 [node name="Map000" type="Node"]
 script = ExtResource("1_lctkj")
@@ -17,3 +18,14 @@ some ground water seeps through the stone walls."
 entrance_text = "The only things here are a bed and cracked cobblestone walls.
 Maybe you'll find something helpful if you [color=cyan]search[/color] the [color=yellow]room[/color]."
 tags = Array[String](["spawn_point"])
+
+[node name="StarKey" parent="Bedroom/Inventory" index="0" instance=ExtResource("3_tqrys")]
+display_name = "Star Key"
+short_desc = "A star sharped key."
+inspect_text = "A small key with a sharp star for the handle.
+If you grasp it too firmly, it might actually cut you.
+Looks like this key is meant to open a specific door.
+Maybe there's a way to tell which door it goes too..."
+tags = Array[String](["key", "cannot_drop"])
+
+[editable path="Bedroom"]

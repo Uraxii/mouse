@@ -130,6 +130,7 @@ func pickup(target_str: String) -> void:
         return
     
     var item = player.current_room.pickup_item(target_str)
+    
     if not item:
         signals.message.emit("Hrm... No %s here" % [target_str])
         return
@@ -137,7 +138,6 @@ func pickup(target_str: String) -> void:
     if player.add_item(item):
         signals.message.emit("The [color=yellow]%s[/color] was placed into your bag." % item.get_display_name())
     else:
-        # Put it back if we couldn't add it
         player.current_room.drop_item(item)
         signals.message.emit("You couldn't pick up the %s." % item.get_display_name())
 
@@ -232,35 +232,35 @@ func _on_message(msg: String) -> void:
     
     history.append(msg)
 
-func _on_door_unlocked(door: DoorNode, key_used: ItemNode, player: Player) -> void:
+func _on_door_unlocked(door: DoorNode, _key_used: ItemNode, _player: Player) -> void:
     signals.objective_progress.emit("unlock", door.get_display_name())
 
-func _on_door_used(door: DoorNode, player: Player) -> void:
+func _on_door_used(door: DoorNode, _player: Player) -> void:
     signals.objective_progress.emit("use", door.get_display_name())
 
-func _on_item_picked_up(player: Player, item: ItemNode) -> void:
+func _on_item_picked_up(_player: Player, item: ItemNode) -> void:
     signals.objective_progress.emit("pickup", item.get_display_name())
 
-func _on_item_dropped(player: Player, item: ItemNode, room: RoomNode) -> void:
+func _on_item_dropped(_player: Player, item: ItemNode, _room: RoomNode) -> void:
     signals.objective_progress.emit("drop", item.get_display_name())
 
-func _on_item_used(player: Player, item: ItemNode, target: Node) -> void:
+func _on_item_used(_player: Player, item: ItemNode, target: Node) -> void:
     var target_name = target.get_display_name() if target.has_method("get_display_name") else str(target)
     signals.objective_progress.emit("use", item.get_display_name() + " on " + target_name)
 
-func _on_player_moved(player: Player, from_room: RoomNode, to_room: RoomNode) -> void:
+func _on_player_moved(_player: Player, _from_room: RoomNode, to_room: RoomNode) -> void:
     signals.objective_progress.emit("move", to_room.get_display_name())
 
-func _on_player_entered_room(player: Player, room: RoomNode) -> void:
+func _on_player_entered_room(_player: Player, room: RoomNode) -> void:
     signals.objective_progress.emit("enter", room.get_display_name())
 
-func _on_player_exited_room(player: Player, room: RoomNode) -> void:
+func _on_player_exited_room(_player: Player, room: RoomNode) -> void:
     signals.objective_progress.emit("exit", room.get_display_name())
 
-func _on_room_searched(room: RoomNode, player: Player) -> void:
+func _on_room_searched(room: RoomNode, _player: Player) -> void:
     signals.objective_progress.emit("search", room.get_display_name())
 
-func _on_room_inspected(room: RoomNode, player: Player) -> void:
+func _on_room_inspected(room: RoomNode, _player: Player) -> void:
     signals.objective_progress.emit("inspect", room.get_display_name())
 
 func _on_update_room(room: RoomNode) -> void:

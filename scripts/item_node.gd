@@ -20,7 +20,7 @@ func inspect() -> String:
     return inspect_text if not inspect_text.is_empty() else "There's nothing special about this."
 
 func can_be_picked_up() -> bool:
-    return not tags.has("cannot_drop")
+    return not tags.has("cannot_pickup")
 
 func has_tag(tag: String) -> bool:
     return tags.has(tag)
