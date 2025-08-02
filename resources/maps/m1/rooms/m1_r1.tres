@@ -8,6 +8,7 @@
 [sub_resource type="Resource" id="Resource_8idtv"]
 script = ExtResource("3_dl53v")
 id = 1
+display_name = "Items"
 items = Array[ExtResource("1_g1ld5")]([ExtResource("2_elpkp")])
 capacity = null
 inspect_text = "It can hold items."
@@ -19,8 +20,7 @@ script = ExtResource("1_e3sk3")
 id = 0
 display_name = "Bedroom"
 description = "The only things here are a bed and cracked cobblestone walls.
-Doesn't look like there's anyway out right now.
-You should proably just go back to sleep."
+Maybe you'll find something helpful if you [color=cyan]search[/color] the [color=yellow]room[/color]."
 entrance_text = "You're back in the room you woke up in."
 empty_room_text = "There's nothing here besides dust and an uneasy feeling."
 search_text = "The room is musty... and humid... some ground water seeps through the stone walls."
