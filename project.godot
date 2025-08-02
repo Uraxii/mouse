@@ -21,6 +21,10 @@ config/icon="res://icon.svg"
 Global="*res://scripts/globals/global_manager.gd"
 Game="*res://scripts/globals/game_manager.gd"
 
+[gui]
+
+theme/custom_font="uid://dv4nm1q5nd566"
+
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true

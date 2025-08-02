@@ -3,6 +3,10 @@ class_name ViewNarration extends RichTextLabel
 
 #region Godot Callback Functions
 func _ready() -> void:
+    add_theme_font_override(
+        "normal_font",
+        preload("res://fonts/Noto_Sans/static/NotoSans-Regular.ttf"))
+        
     _connect_signals()
     clear()
 #endregion
