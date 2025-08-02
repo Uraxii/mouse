@@ -98,7 +98,7 @@ offset_top = 10.0
 offset_right = 267.0
 offset_bottom = 43.0
 bbcode_enabled = true
-text = "Type [b]Help[/b] to see the action list."
+text = "Type [b][color=cyan]Help[/color][/b] to see the action list."
 
 [node name="Version" type="RichTextLabel" parent="."]
 layout_mode = 1
