@@ -108,6 +108,11 @@ func move_player_through_door(player: Player, door: DoorNode) -> bool:
         signals.message.emit(door.locked_message)
         return false
     
+    # Check for exit door
+    if door.has_method("has_tag") and door.has_tag("exit"):
+        _handle_map_exit(player, door)
+        return true
+    
     var destination_room = get_room_by_id(door.get_destination_id())
     if not destination_room:
         signals.message.emit("The door leads nowhere...")
@@ -115,6 +120,50 @@ func move_player_through_door(player: Player, door: DoorNode) -> bool:
     
     move_player(player, destination_room)
     return true
+
+func _handle_map_exit(player: Player, door: DoorNode) -> void:
+    signals.message.emit("You step through the %s and escape!" % door.get_display_name())
+    signals.message.emit("[color=green][b]VICTORY![/b][/color] You have successfully escaped!")
+    
+    # Emit exit signal for objectives
+    signals.player_exited_map.emit(player, current_map)
+    
+    call_deferred("_on_map_completed")
+
+func _on_map_completed() -> void:
+    signals.message.emit("\n[color=cyan]Press any key to restart...[/color]")
+    # Enable restart on any key press
+    _waiting_for_restart = true
+
+var _waiting_for_restart: bool = false
+
+func _input(event: InputEvent) -> void:
+    if _waiting_for_restart and event is InputEventKey and event.pressed:
+        _restart_level()
+
+func _restart_level() -> void:
+    _waiting_for_restart = false
+    
+    # Clear objectives
+    Global.objectives.clear_all_objectives()
+    
+    # Remove current player
+    if local_player:
+        local_player.queue_free()
+        local_player = null
+    players.clear()
+    
+    # Unload current map
+    unload_map()
+    
+    # Recreate everything
+    if autoload_map_scene:
+        load_map_scene_resource(autoload_map_scene, autoload_map_id)
+    
+    local_player = _create_player()
+    
+    for player in players:
+        _spawn_player(player)
 #endregion
 
 #region Godot Callback functions

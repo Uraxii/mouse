@@ -28,6 +28,8 @@ func _on_command(cmd: Command) -> void:
     match cmd.action.to_lower():
         "drop":
             drop(cmd.target)
+        "exit":
+            exit()
         "inspect":
             inspect(cmd.target)
         "look":
@@ -47,6 +49,7 @@ func _on_command(cmd: Command) -> void:
         _:
             signals.message.emit("You don't know how to %s" % [cmd])
 
+
 func drop(item_name: String) -> void:
     var item = player.remove_item_by_name(item_name)
     
@@ -58,29 +61,25 @@ func drop(item_name: String) -> void:
     signals.message.emit("You put the %s down." % item.get_display_name())
     signals.item_dropped.emit(player, item, player.current_room)
 
-func help() -> void:
-    var help_message = """[center][b]HELP[/b][/center]
-    [left][u]Actions[/u]
-    [b]Drop [item][/b]
-    \tDrop an item from your inventory
-    [b]Inspect [target][/b]
-    \tExamine something closely
-    [b]Look [target][/b]
-    \tLook at something or around the room
-    [b]Pickup [item][/b]
-    \tPick up an item
-    [b]Search[/b]
-    \tSearch the current room for items
-    [b]Use [item] on [target][/b]
-    \tUse an item on something
-    [b]Go [door/direction][/b]
-    \tMove through a door or passage
-    [b]Objectives[/b]
-    \tShow current objectives
-    [b]Help[/b]
-    \tShow this menu[/left]"""
+
+func exit() -> void:
+    # Check if player is in a room with an exit door
+    if not player.current_room:
+        signals.message.emit("You can't exit from here.")
+        return
     
-    signals.message.emit(help_message)
+    var exit_doors = []
+    for door in player.current_room.get_doors():
+        if door.has_method("has_tag") and door.has_tag("exit"):
+            exit_doors.append(door)
+    
+    if exit_doors.is_empty():
+        signals.message.emit("There's no way to exit from here.")
+        return
+    
+    var exit_door = exit_doors[0]
+    go_through(exit_door.get_display_name())
+
 
 func inspect(target_str: String) -> void:
     if not target_str:
@@ -99,6 +98,7 @@ func inspect(target_str: String) -> void:
                 signals.message.emit(target.inspect())
             else:
                 signals.message.emit("There's nothing like that here.")
+
 
 func look(target_str: String) -> void:
     if not target_str:
@@ -119,6 +119,7 @@ func look(target_str: String) -> void:
                 signals.message.emit(target.inspect())
             else:
                 signals.message.emit("There's nothing like that here.")
+
 
 func pickup(target_str: String) -> void:
     if not target_str:
@@ -141,6 +142,7 @@ func pickup(target_str: String) -> void:
         player.current_room.drop_item(item)
         signals.message.emit("You couldn't pick up the %s." % item.get_display_name())
 
+
 func search(target_str: String = "") -> void:
     if not target_str or target_str.to_lower() == "room":
         if player.current_room:
@@ -150,9 +152,10 @@ func search(target_str: String = "") -> void:
     var target = _find_target(target_str)
     if target and target.has_method("search"):
         signals.message.emit(target.search())
-        signals.objective_progress.emit("search", target_str)
+        _emit_objective_progress("search", target_str)
     else:
         signals.message.emit("Cannot search that!")
+
 
 func use_item(command_str: String) -> void:
     # Parse "item on target" or just "item"
@@ -180,6 +183,7 @@ func use_item(command_str: String) -> void:
     var result = item.use_on(target, player)
     signals.message.emit(result)
 
+
 func go_through(target_str: String) -> void:
     if not target_str:
         signals.message.emit("Go through what?")
@@ -195,6 +199,32 @@ func go_through(target_str: String) -> void:
     
     if door.can_pass_through():
         Game.move_player_through_door(player, door)
+        
+
+func help() -> void:
+    var help_message = """[center][b]HELP[/b][/center]
+    [left][u]Actions[/u]
+    [b]Drop [item][/b]
+    \tDrop an item from your inventory
+    [b]Inspect [target][/b]
+    \tExamine something closely
+    [b]Look [target][/b]
+    \tLook at something or around the room
+    [b]Pickup [item][/b]
+    \tPick up an item
+    [b]Search[/b]
+    \tSearch the current room for items
+    [b]Use [item] on [target][/b]
+    \tUse an item on something
+    [b]Go [door/direction][/b]
+    \tMove through a door or passage
+    [b]Objectives[/b]
+    \tShow current objectives
+    [b]Help[/b]
+    \tShow this menu[/left]"""
+    
+    signals.message.emit(help_message)
+
 
 func _find_target(target_name: String) -> Node:
     # First check player inventory
@@ -232,36 +262,52 @@ func _on_message(msg: String) -> void:
     
     history.append(msg)
 
-func _on_door_unlocked(door: DoorNode, _key_used: ItemNode, _player: Player) -> void:
-    signals.objective_progress.emit("unlock", door.get_display_name())
+func _on_door_unlocked(door: DoorNode, key_used: ItemNode, player: Player) -> void:
+    # Emit both unlock and use signals for task flexibility
+    _emit_objective_progress("unlock", door.get_display_name(), key_used.get_display_name())
+    _emit_objective_progress("use", key_used.get_display_name(), door.get_display_name())
 
-func _on_door_used(door: DoorNode, _player: Player) -> void:
-    signals.objective_progress.emit("use", door.get_display_name())
+func _on_door_used(door: DoorNode, player: Player) -> void:
+    _emit_objective_progress("use", door.get_display_name())
 
-func _on_item_picked_up(_player: Player, item: ItemNode) -> void:
-    signals.objective_progress.emit("pickup", item.get_display_name())
+func _on_item_picked_up(player: Player, item: ItemNode) -> void:
+    _emit_objective_progress("pickup", item.get_display_name())
 
-func _on_item_dropped(_player: Player, item: ItemNode, _room: RoomNode) -> void:
-    signals.objective_progress.emit("drop", item.get_display_name())
+func _on_item_dropped(player: Player, item: ItemNode, room: RoomNode) -> void:
+    _emit_objective_progress("drop", item.get_display_name())
 
-func _on_item_used(_player: Player, item: ItemNode, target: Node) -> void:
+func _on_item_used(player: Player, item: ItemNode, target: Node) -> void:
     var target_name = target.get_display_name() if target.has_method("get_display_name") else str(target)
-    signals.objective_progress.emit("use", item.get_display_name() + " on " + target_name)
+    _emit_objective_progress("use", item.get_display_name(), target_name)
 
-func _on_player_moved(_player: Player, _from_room: RoomNode, to_room: RoomNode) -> void:
-    signals.objective_progress.emit("move", to_room.get_display_name())
+func _on_player_moved(player: Player, from_room: RoomNode, to_room: RoomNode) -> void:
+    _emit_objective_progress("move", to_room.get_display_name())
 
-func _on_player_entered_room(_player: Player, room: RoomNode) -> void:
-    signals.objective_progress.emit("enter", room.get_display_name())
+func _on_player_entered_room(player: Player, room: RoomNode) -> void:
+    _emit_objective_progress("enter", room.get_display_name())
 
-func _on_player_exited_room(_player: Player, room: RoomNode) -> void:
-    signals.objective_progress.emit("exit", room.get_display_name())
+func _on_player_exited_room(player: Player, room: RoomNode) -> void:
+    _emit_objective_progress("exit", room.get_display_name())
 
-func _on_room_searched(room: RoomNode, _player: Player) -> void:
-    signals.objective_progress.emit("search", room.get_display_name())
+func _on_room_searched(room: RoomNode, player: Player) -> void:
+    _emit_objective_progress("search", room.get_display_name())
 
-func _on_room_inspected(room: RoomNode, _player: Player) -> void:
-    signals.objective_progress.emit("inspect", room.get_display_name())
+func _on_room_inspected(room: RoomNode, player: Player) -> void:
+    _emit_objective_progress("inspect", room.get_display_name())
+
+func _emit_objective_progress(action: String, target: String, secondary_target: String = "") -> void:
+    for objective in Global.objectives.active_objectives:
+        var completion_msg = objective.try_progress(action, target, secondary_target)
+        
+        if not completion_msg.is_empty():
+            signals.message.emit(completion_msg)
+            
+            var hint = objective.get_current_hint()
+            if not hint.is_empty():
+                signals.message.emit("[color=yellow][i]%s[/i][/color]" % hint)
+            
+            if objective.is_objective_complete():
+                Global.objectives.complete_objective(objective)
 
 func _on_update_room(room: RoomNode) -> void:
     if Game.local_player.current_room == room:

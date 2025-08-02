@@ -19,6 +19,8 @@ signal player_moved(player: Player, from_room: RoomNode, to_room: RoomNode)
 signal player_entered_room(player: Player, room: RoomNode)
 @warning_ignore("unused_signal")
 signal player_exited_room(player: Player, room: RoomNode)
+@warning_ignore("unused_signal")
+signal player_exited_map(player: Player, map: MapNode)
 
 # Item interaction signals
 @warning_ignore("unused_signal")

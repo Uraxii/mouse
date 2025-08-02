@@ -1,6 +1,5 @@
 class_name Objective extends Resource
 
-
 @export var title: String = ""
 @export_multiline var description: String = ""
 @export var tasks: Array[Task] = []
@@ -27,7 +26,7 @@ func is_objective_complete() -> bool:
     return true
 
 
-func try_progress(action: String, target: String) -> String:
+func try_progress(action: String, target: String, secondary_target: String = "") -> String:
     if not is_active or is_completed:
         return ""
         
@@ -35,7 +34,7 @@ func try_progress(action: String, target: String) -> String:
     if not current_task:
         return ""
         
-    if current_task.matches_action(action, target):
+    if current_task.matches_action(action, target, secondary_target):
         var completion_msg = current_task.complete()
         
         # Check if objective is now complete

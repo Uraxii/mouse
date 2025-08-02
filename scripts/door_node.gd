@@ -5,12 +5,13 @@ class_name DoorNode extends Node
 @export_multiline var description: String = "A sturdy wooden door."
 @export var destination_room_id: int = -1
 @export var is_locked: bool = false
-@export var required_key_tags: Array[String] = []
 @export var required_key_name: String = ""
+@export var required_key_tags: Array[String] = []
 @export_multiline var unlock_message: String = "The door unlocks with a satisfying click."
 @export_multiline var already_unlocked_message: String = "The door is already unlocked."
 @export_multiline var wrong_key_message: String = "The key doesn't fit this door."
 @export_multiline var locked_message: String = "The door is locked."
+@export var tags: Array[String] = []
 
 @onready var signals := Global.signals
 
@@ -51,6 +52,10 @@ func use_door(user: Player) -> String:
 
 func get_destination_id() -> int:
     return destination_room_id
+    
+
+func has_tag(tag: String) -> bool:
+    return tags.has(tag)
 #endregion
 
 #region Private Functions

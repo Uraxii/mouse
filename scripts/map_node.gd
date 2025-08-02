@@ -1,13 +1,14 @@
 class_name MapNode extends Node
 
-# Map properties - directly editable in inspector
 @export var time_remaining: int = 100
 @export var map_title: String = "Untitled Map"
 @export_multiline var map_description: String = ""
+@export var objectives: Array[Objective] = []
 
 @onready var signals := Global.signals
 
-var room_lookup: Dictionary = {}  # id -> RoomNode for fast lookup
+# id -> RoomNode for fast lookup
+var room_lookup: Dictionary = {}
 
 #region Public Interface
 func get_room_by_id(room_id: int) -> RoomNode:
@@ -60,8 +61,12 @@ func get_map_stats() -> Dictionary:
         "spawn_rooms": get_spawn_rooms().size(),
         "total_items": _count_total_items(),
         "total_doors": _count_total_doors(),
-        "time_remaining": time_remaining
+        "time_remaining": time_remaining,
+        "objectives": objectives.size()
     }
+
+func get_objectives() -> Array[Objective]:
+    return objectives
 #endregion
 
 #region Godot Callbacks
@@ -70,12 +75,16 @@ func _ready() -> void:
     for room in get_all_rooms():
         room_lookup[room.get_id()] = room
     
+    # Load objectives into the objective manager
+    if objectives.size() > 0:
+        Global.objectives.load_map_objectives(objectives)
+    
     # Validate connections after a frame
     call_deferred("_post_load_validation")
 
 func _post_load_validation() -> void:
     if validate_connections():
-        print_debug("Map '%s' loaded successfully with %d rooms" % [map_title, get_all_rooms().size()])
+        print_debug("Map '%s' loaded successfully with %d rooms and %d objectives" % [map_title, get_all_rooms().size(), objectives.size()])
         signals.map_loaded.emit(self)
     else:
         push_error("Map validation failed!")
