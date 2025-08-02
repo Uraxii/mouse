@@ -54,7 +54,7 @@ func drop(item_name: String) -> void:
         signals.message.emit("Could not drop %s." % item_name)
     
     player.current_room.inventory.add_item(item)
-    signals.message.emit("You put the %s down." % item.display_name)
+    signals.message.emit("You put the [color=yellow]%s[/color] down." % item.display_name)
 
 
 func inspect(target_str) -> void:
