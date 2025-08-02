@@ -55,26 +55,6 @@ func drop(item_name: String) -> void:
     
     player.current_room.inventory.add_item(item)
     signals.message.emit("You put the %s down." % item.display_name)
-    
-
-
-func help() -> void:
-    var help_message = """[center][b]HELP[/b][/center]
-    [left][u]Actions[/u]
-    [b]Drop[/b]
-    \t...
-    [b]Inspect[/b]
-    \t...
-    [b]Look[/b]
-    \t...
-    [b]Pickup[/b]
-    \t...
-    [b]Search[/b]
-    \t...
-    [b]Help[/b]
-    \tShow This menu.[/left]"""
-    
-    signals.message.emit(help_message)
 
 
 func inspect(target_str) -> void:
@@ -142,6 +122,43 @@ func search(target_str: String) -> void:
         return
     
     signals.message.emit(target.search())
+    
+
+func help() -> void:
+    var help_message = """[center][b]HELP[/b][/center]
+    [left][u]Available Actions[/u]
+    
+    [b]Drop [item_name][/b]
+    \tRemove an item from your inventory and place it in the current room.
+    \tExample: "drop star key"
+    
+    [b]Inspect [target][/b]
+    \tExamine something closely to get detailed information.
+    \tTargets: inventory, room, or any item/object
+    \tExample: "inspect inventory" or "inspect room"
+    
+    [b]Look [target][/b]
+    \tObserve your surroundings or examine something.
+    \tTargets: inventory, room, or any item/object
+    \tExample: "look room" or "look inventory"
+    
+    [b]Pickup [item_name][/b]
+    \tTake an item from the current room and add it to your inventory.
+    \tExample: "pickup star key"
+    
+    [b]Search [target][/b]
+    \tSearch the room or a specific area for items or clues.
+    \tExample: "search" or "search room"
+    
+    [b]Help[/b]
+    \tShow this help menu with all available commands.
+    
+    [u]Tips:[/u]
+    • You can chain commands with semicolons: "look room; search; pickup key"
+    • Commands are case-insensitive
+    • Use specific item names when picking up or dropping items[/left]"""
+    
+    signals.message.emit(help_message)
 #endregion
 
 
