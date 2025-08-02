@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Map" load_steps=4 format=3 uid="uid://c3f1fllmtu33a"]
+
+[ext_resource type="Script" uid="uid://o2jjgy8w8ct7" path="res://scripts/resources/room.gd" id="1_3otu0"]
+[ext_resource type="Resource" uid="uid://brwfdukc3c8x1" path="res://resources/maps/m1/rooms/m1_r1.tres" id="2_f60i2"]
+[ext_resource type="Script" uid="uid://3h6u5lgyhjnh" path="res://scripts/resources/map.gd" id="3_gdm7i"]
+
+[resource]
+script = ExtResource("3_gdm7i")
+layout = Array[ExtResource("1_3otu0")]([ExtResource("2_f60i2")])
+metadata/_custom_type_script = "uid://3h6u5lgyhjnh"

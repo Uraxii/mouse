@@ -1,0 +1,90 @@
+[gd_scene load_steps=5 format=3 uid="uid://dbhm0bhiufgbe"]
+
+[ext_resource type="Script" uid="uid://bi2c5np583jai" path="res://scripts/globals/interface/interface.gd" id="1_tg63u"]
+[ext_resource type="Script" uid="uid://dy7160axsagmg" path="res://scripts/globals/interface/view_history.gd" id="2_lw6my"]
+[ext_resource type="Script" uid="uid://h228e8on2ffq" path="res://scripts/globals/interface/view_narration.gd" id="2_t72xj"]
+[ext_resource type="Script" uid="uid://cyvoly35u8tlu" path="res://scripts/globals/interface/input.gd" id="4_s0di0"]
+
+[node name="Interface" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tg63u")
+
+[node name="Narration" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "{{ Narration }}"
+scroll_following = true
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_t72xj")
+
+[node name="History" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 300.0
+offset_bottom = -114.0
+grow_vertical = 2
+script = ExtResource("2_lw6my")
+
+[node name="Title" type="RichTextLabel" parent="History"]
+custom_minimum_size = Vector2(150, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "[u]History[/u]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EventLog" type="RichTextLabel" parent="History"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 500)
+layout_mode = 2
+focus_mode = 2
+selection_enabled = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -133.5
+offset_top = -73.0
+offset_right = 133.5
+offset_bottom = -33.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="CommandInput" type="TextEdit" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+placeholder_text = "Type a command"
+script = ExtResource("4_s0di0")
+
+[node name="Submit" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Submit"

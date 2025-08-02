@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Item" load_steps=2 format=3 uid="uid://do6l03v45ose6"]
+
+[ext_resource type="Script" uid="uid://bao1tg7dleank" path="res://scripts/resources/item.gd" id="1_ymhdd"]
+
+[resource]
+script = ExtResource("1_ymhdd")
+id = 1
+display_name = "Star Key"
+short_desc = "A star sharped key"
+inspect_text = "A small key with a sharp star for the handle.
+If you grasp it too firmly, it might actually cut you.
+Looks like this key is meant to open a specific door.
+Maybe there's a way to tell which door it goes too..."
+charges = -1
+tags = Array[String](["key"])
+metadata/_custom_type_script = "uid://bao1tg7dleank"

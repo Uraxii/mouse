@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Room" load_steps=6 format=3 uid="uid://brwfdukc3c8x1"]
+
+[ext_resource type="Script" uid="uid://o2jjgy8w8ct7" path="res://scripts/resources/room.gd" id="1_e3sk3"]
+[ext_resource type="Script" uid="uid://bao1tg7dleank" path="res://scripts/resources/item.gd" id="1_g1ld5"]
+[ext_resource type="Resource" uid="uid://do6l03v45ose6" path="res://resources/items/star_key.tres" id="2_elpkp"]
+[ext_resource type="Script" uid="uid://dba7765ayqxv2" path="res://scripts/resources/inventory.gd" id="3_dl53v"]
+
+[sub_resource type="Resource" id="Resource_8idtv"]
+script = ExtResource("3_dl53v")
+id = 1
+items = Array[ExtResource("1_g1ld5")]([ExtResource("2_elpkp")])
+capacity = null
+inspect_text = "It can hold items."
+empty_text = "Sorry bud. Nothing but air here."
+metadata/_custom_type_script = "uid://dba7765ayqxv2"
+
+[resource]
+script = ExtResource("1_e3sk3")
+id = 0
+display_name = "Bedroom"
+description = "The only things here are a bed and cracked cobblestone walls.
+Doesn't look like there's anyway out right now.
+You should proably just go back to sleep."
+entrance_text = "You're back in the room you woke up in."
+empty_room_text = "There's nothing here besides dust and an uneasy feeling."
+search_text = "The room is musty... and humid... some ground water seeps through the stone walls."
+connections = Array[int]([])
+inventory = SubResource("Resource_8idtv")
+tags = Array[String](["spawn_point"])
+metadata/_custom_type_script = "uid://o2jjgy8w8ct7"
