@@ -32,7 +32,7 @@ func search() -> String:
     
     if inventory.items.size() == 1:
         # TODO: a/an logic
-        return "You found a [%s]!" % [inventory.items[0].display_name]
+        return "You found a [color=yellow]%s[/color]!" % [inventory.items[0].display_name]
         
     var out_str = "There are a few things in here...\n"
     

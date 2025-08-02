@@ -31,8 +31,8 @@ func _on_command(cmd: Command) -> void:
     signals.message.emit("─ ".repeat(20))
     
     match cmd.action.to_lower():
-        "help":
-            help()
+        "drop":
+            drop(cmd.target)
         "inspect":
             inspect(cmd.target)
         "look":
@@ -41,14 +41,28 @@ func _on_command(cmd: Command) -> void:
             pickup(cmd.target)
         "search":
             search(cmd.target)
+        "help":
+            help()
         _:
             signals.message.emit("You don't know how to %s" % [cmd])
+
+
+func drop(item_name: String) -> void:
+    var item = player.inventory.remove_item_by_name(item_name)
+    
+    if not item:
+        signals.message.emit("Could not drop %s." % item_name)
+    
+    player.current_room.inventory.add_item(item)
+    signals.message.emit("You put the %s down." % item.display_name)
+    
 
 
 func help() -> void:
     var help_message = """[center][b]HELP[/b][/center]
     [left][u]Actions[/u]
-    
+    [b]Drop[/b]
+    \t...
     [b]Inspect[/b]
     \t...
     [b]Look[/b]
@@ -86,12 +100,11 @@ func look(target_str: String) -> void:
         
     match target_str:
         "inventory":
-            function = player.check_inventory
+            function = player.inventory.look
         "room":
             function = player.current_room.look
         _:
-            if player.current_focus.has_method("look"):
-                function = player.current_focus.look
+            function = player.current_focus.get_method("look")
 
     if not function:
         signals.message.emit("There's nothing like that here.")
@@ -129,8 +142,6 @@ func search(target_str: String) -> void:
         return
     
     signals.message.emit(target.search())
-    
-
 #endregion
 
 

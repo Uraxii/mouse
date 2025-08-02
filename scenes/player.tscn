@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://bplnu52h2ad8l"]
+
+[ext_resource type="Script" uid="uid://b6mb362n13ols" path="res://scripts/player.gd" id="1_3vyb7"]
+[ext_resource type="Script" uid="uid://bao1tg7dleank" path="res://scripts/resources/item.gd" id="2_qhqgy"]
+[ext_resource type="Script" uid="uid://dba7765ayqxv2" path="res://scripts/resources/inventory.gd" id="3_dqkch"]
+
+[sub_resource type="Resource" id="Resource_qlg0r"]
+script = ExtResource("3_dqkch")
+id = 0
+display_name = "Items"
+items = Array[ExtResource("2_qhqgy")]([])
+capacity = null
+inspect_text = "It can hold items."
+empty_text = "Sorry bud. Nothing but air here."
+metadata/_custom_type_script = "uid://dba7765ayqxv2"
+
+[node name="Player" type="Node"]
+script = ExtResource("1_3vyb7")
+inventory = SubResource("Resource_qlg0r")

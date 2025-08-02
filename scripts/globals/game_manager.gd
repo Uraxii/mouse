@@ -5,6 +5,7 @@ class_name GameManager extends Node
 var map_data: Map = preload("res://resources/maps/m1/m1.tres")
 var remaining_time := map_data.time
 
+var player_scene := preload("res://scenes/player.tscn")
 var local_player: Player = null
 var players: Array[Player] = []
 
@@ -38,7 +39,9 @@ func _on_start_game() -> void:
         
 
 func _create_player() -> Player:
-    players.append(Player.new())
+    var player: Player = player_scene.instantiate()
+    players.append(player)
+    add_child.call_deferred(player)
     return players[-1]
     
 
