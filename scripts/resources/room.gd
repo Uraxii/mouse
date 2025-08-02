@@ -46,7 +46,6 @@ func search() -> String:
 #region Godot Callback Functions
 func _ready() -> void:
     _validate()
-    
 #endregion
 
 
