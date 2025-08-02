@@ -103,7 +103,6 @@ func _on_room_player_exited(player: Player) -> void:
 func _on_time_tick() -> void:
     if time_remaining > 0:
         time_remaining -= 1
-        time_changed.emit(time_remaining)
         
         if time_remaining <= 0:
             _on_time_expired()

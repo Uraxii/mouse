@@ -1,9 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://dqpwehwje5f1v"]
+[gd_scene load_steps=3 format=3 uid="uid://dqpwehwje5f1v"]
 
 [ext_resource type="Script" uid="uid://dxt8lt2qx0xir" path="res://scripts/map_node.gd" id="1_lctkj"]
+[ext_resource type="PackedScene" uid="uid://cnh2reo36sn7d" path="res://scenes/room.tscn" id="2_xj7f0"]
 
 [node name="Map000" type="Node"]
 script = ExtResource("1_lctkj")
-time_remaining = null
 map_title = "Tutorial"
-map_description = null
+
+[node name="Bedroom" parent="." instance=ExtResource("2_xj7f0")]
+room_id = 0
+display_name = "Bedroom"
+description = "You're back in the room you woke up in. 
+This place is musty...
+and humid... 
+some ground water seeps through the stone walls."
+entrance_text = "The only things here are a bed and cracked cobblestone walls.
+Maybe you'll find something helpful if you [color=cyan]search[/color] the [color=yellow]room[/color]."
+tags = Array[String](["spawn_point"])

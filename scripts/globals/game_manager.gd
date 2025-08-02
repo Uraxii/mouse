@@ -1,4 +1,3 @@
-# scripts/globals/game_manager.gd - Updated for node-based maps
 class_name GameManager extends Node
 
 @onready var signals := Global.signals
@@ -33,9 +32,6 @@ func load_map_scene(map_scene_path: String, map_id: String = "main") -> MapNode:
     maps[map_id] = map_node
     current_map = map_node
     
-    # Connect map signals
-    map_node.map_loaded.connect(_on_map_loaded)
-    
     print_debug("Loaded map: %s" % map_id)
     return map_node
 
@@ -55,9 +51,6 @@ func load_map_scene_resource(map_scene_resource: PackedScene, map_id: String = "
     add_child(map_node)
     maps[map_id] = map_node
     current_map = map_node
-    
-    # Connect map signals
-    map_node.map_loaded.connect(_on_map_loaded)
     
     print_debug("Loaded map from resource: %s" % map_id)
     return map_node
@@ -163,12 +156,4 @@ func _spawn_player(player: Player) -> void:
             return
     
     move_player(player, player.spawn_room)
-
-func _on_map_loaded() -> void:
-    print_debug("Map loaded signal received")
-    
-    # Print map statistics
-    if current_map:
-        var stats = current_map.get_map_stats()
-        print_debug("Map Stats: %s" % str(stats))
 #endregion

@@ -4,6 +4,7 @@
 
 [node name="Room" type="Node"]
 script = ExtResource("1_36trf")
+description = "It's a room alright."
 
 [node name="Inventory" type="Node" parent="."]
 unique_name_in_owner = true

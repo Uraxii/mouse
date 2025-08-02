@@ -11,7 +11,7 @@ var inventory_items: Array[ItemNode] = []
 var hp := 100
 var speed := 100
 
-signal inventory_changed()
+@onready var signals := Global.signals
 
 #region Public Interface
 func get_inventory_display() -> String:
@@ -46,8 +46,8 @@ func add_item(item: ItemNode) -> bool:
         return false
     
     inventory_items.append(item)
-    item.picked_up.emit(self)
-    inventory_changed.emit()
+    signals.item_picked_up.emit(self, item)
+    signals.inventory_changed.emit(self)
     return true
 
 func remove_item_by_name(item_name: String) -> ItemNode:
@@ -56,7 +56,7 @@ func remove_item_by_name(item_name: String) -> ItemNode:
         if item.get_display_name().to_lower() == item_name.to_lower():
             if item.can_be_picked_up():  # Can also be dropped
                 inventory_items.remove_at(i)
-                inventory_changed.emit()
+                signals.inventory_changed.emit(self)
                 return item
     return null
 
@@ -70,6 +70,8 @@ func get_current_focus() -> Node:
     return current_room
 
 func move_to_room(new_room: RoomNode) -> void:
+    var old_room = current_room
+    
     if current_room:
         current_room.remove_player(self)
     
@@ -77,13 +79,14 @@ func move_to_room(new_room: RoomNode) -> void:
     
     if current_room:
         current_room.add_player(self)
+    
+    # Emit movement signals through signal bus
+    if old_room and new_room:
+        signals.player_moved.emit(self, old_room, new_room)
 #endregion
 
 #region Godot Callbacks
 func _ready() -> void:
-    inventory_changed.connect(_on_inventory_changed)
-
-func _on_inventory_changed() -> void:
-    # Handle any inventory change logic here
+    # No longer need local inventory_changed signal
     pass
 #endregion

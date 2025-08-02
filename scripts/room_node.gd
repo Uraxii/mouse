@@ -128,18 +128,5 @@ func _ready() -> void:
     if room_id < 0:
         push_warning("Room %s has invalid id!" % name)
     
-    # Connect door signals
-    for door in get_doors():
-        if not door.door_unlocked.is_connected(_on_door_unlocked):
-            door.door_unlocked.connect(_on_door_unlocked)
-        if not door.door_used.is_connected(_on_door_used):
-            door.door_used.connect(_on_door_used)
-
-func _on_door_unlocked(door: DoorNode, key_used: ItemNode) -> void:
-    print_debug("Door %s was unlocked with %s" % [door.get_display_name(), key_used.get_display_name()])
-    signals.door_unlocked.emit(door, key_used, Game.local_player)
-
-func _on_door_used(door: DoorNode, user: Player) -> void:
-    print_debug("Player %s used door %s" % [user.display_name, door.get_display_name()])
-    signals.door_used.emit(door, user)
+    # Remove direct door signal connections - everything goes through signal bus now
 #endregion

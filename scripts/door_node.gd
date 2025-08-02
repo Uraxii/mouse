@@ -39,14 +39,14 @@ func try_unlock_with_key(key_item: ItemNode) -> String:
         return wrong_key_message
     
     is_locked = false
-    # Door unlocked signal is emitted by the room that contains this door
+    signals.door_unlocked.emit(self, key_item, Game.local_player)
     return unlock_message
 
 func use_door(user: Player) -> String:
     if is_locked:
         return locked_message
     
-    # Door used signal is emitted by the room that contains this door
+    signals.door_used.emit(self, user)
     return "You pass through the %s." % display_name
 
 func get_destination_id() -> int:
