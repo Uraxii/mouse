@@ -97,16 +97,17 @@ func pickup(target_str: String) -> void:
     var item = player.current_room.pickup(target_str)
     
     if player.inventory.is_full:
-        signals.message.emit("You're carrying too much to pick up anything else.")
+        signals.message.emit(
+            "You're carrying too much to pick up anything else!")
         return
     
     if not item:
-        signals.message.emit("Hrm... No %s here" % [target_str])
+        signals.message.emit("Hrm... No [color=yellow]%s[/color] here." % [target_str])
         return
         
     player.inventory.add_item(item)
     signals.message.emit(
-        "The [%s] was placed into your bag." % item.display_name)
+        "The [color=yello]%s[/color] was placed into your bag." % item.display_name)
 
 
 func search(target_str: String) -> void:
