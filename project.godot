@@ -20,3 +20,7 @@ config/icon="res://icon.svg"
 
 Global="*res://scripts/globals/global_manager.gd"
 Game="*res://scripts/globals/game_manager.gd"
+
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true
