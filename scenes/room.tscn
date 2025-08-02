@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnh2reo36sn7d"]
+
+[ext_resource type="Script" uid="uid://b6afuyy4lnle5" path="res://scripts/room_node.gd" id="1_36trf"]
+
+[node name="Room" type="Node"]
+script = ExtResource("1_36trf")
+
+[node name="Inventory" type="Node" parent="."]
+unique_name_in_owner = true
+
+[node name="Doors" type="Node" parent="."]
+unique_name_in_owner = true
+
+[node name="NPCs" type="Node" parent="."]
+unique_name_in_owner = true

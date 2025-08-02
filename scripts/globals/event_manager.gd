@@ -1,19 +1,17 @@
+# scripts/globals/event_manager.gd
 class_name EventManager
 
 var max_history_size := 100
 var history: Array[String] = []
 
 var signals: SignalBus
-# TODO: Cache local player value
 var player: Player:
     get: return Game.local_player
-
 
 #region Public functions
 func setup() -> void:
     signals = Global.signals
     _connect_signals()
-
 
 func get_tail(entries := max_history_size) -> Array[String]:
     return history.slice(
@@ -22,12 +20,10 @@ func get_tail(entries := max_history_size) -> Array[String]:
     )
 #endregion
 
-
 #region Command Functions
 func _on_command(cmd: Command) -> void:
     print_debug(str(cmd))
     signals.message.emit("[color=cyan][i]CMD: %s[/i][/color]" % [str(cmd)])
-    
     signals.message.emit("─ ".repeat(20))
     
     match cmd.action.to_lower():
@@ -41,157 +37,185 @@ func _on_command(cmd: Command) -> void:
             pickup(cmd.target)
         "search":
             search(cmd.target)
+        "use":
+            use_item(cmd.target)
+        "go", "move", "enter":
+            go_through(cmd.target)
         "help":
             help()
-        "objectives":
-            Global.objectives.show_current_objectives()
         _:
             signals.message.emit("You don't know how to %s" % [cmd])
 
-
 func drop(item_name: String) -> void:
-    var item = player.inventory.remove_item_by_name(item_name)
+    var item = player.remove_item_by_name(item_name)
     
     if not item:
         signals.message.emit("Could not drop %s." % item_name)
         return
     
-    player.current_room.inventory.add_item(item)
-    signals.message.emit(
-        "You put the [color=yellow]%s[/color] down." % item.display_name)
-    
-    # Emit objective progress for successful drop
-    signals.objective_progress.emit("drop", item.display_name)
-
-
-func inspect(target_str) -> void:
-    var function: Callable
-        
-    match target_str:
-        "inventory":
-            function = player.inventory.inspect
-        "room":
-            function = player.current_room.inspect
-        _:
-            function = player.current_focus.get_method("inspect")
-
-    if not function:
-        signals.message.emit("There's nothing like that here.")
-        return
-        
-    signals.message.emit(function.call())
-    signals.objective_progress.emit("inspect", target_str)
-
-
-func look(target_str: String) -> void:
-    var function: Callable
-        
-    match target_str:
-        "inventory":
-            function = player.inventory.look
-        "room":
-            function = player.current_room.look
-        _:
-            function = player.current_focus.get_method("look")
-
-    if not function:
-        signals.message.emit("There's nothing like that here.")
-        return
-        
-    signals.message.emit(function.call())
-    signals.objective_progress.emit("look", target_str)
-
-
-func pickup(target_str: String) -> void:
-    var item = player.current_room.pickup(target_str)
-    
-    if player.inventory.is_full:
-        signals.message.emit(
-            "You're carrying too much to pick up anything else!")
-        return
-    
-    if not item:
-        signals.message.emit(
-            "Hrm... No [color=yellow]%s[/color] here." % [target_str])
-        return
-        
-    player.inventory.add_item(item)
-    signals.message.emit(
-        "The [color=yellow]%s[/color] was placed into your bag." % item.display_name)
-        
-    signals.objective_progress.emit("pickup", item.display_name)
-
-
-func search(target_str: String) -> void:
-    var target
-    
-    if not target_str:
-        target = player.current_focus
-    if target_str.to_lower() == "room":
-        target = player.current_room
-
-    if not target or not target.has_method("search"):
-        signals.message.emit("Cannot Search that!")
-        return
-    
-    signals.message.emit(target.search())
-    
-    var search_target = target_str if target_str else "room"
-    signals.objective_progress.emit("search", search_target)
-
+    player.current_room.drop_item(item)
+    signals.message.emit("You put the %s down." % item.get_display_name())
 
 func help() -> void:
     var help_message = """[center][b]HELP[/b][/center]
-    [left][u]Available Actions[/u]
-    
-    [b]Drop [item_name][/b]
-    \tRemove an item from your inventory and place it in the current room.
-    \tExample: "drop star key"
-    
+    [left][u]Actions[/u]
+    [b]Drop [item][/b]
+    \tDrop an item from your inventory
     [b]Inspect [target][/b]
-    \tExamine something closely to get detailed information.
-    \tTargets: inventory, room, or any item/object
-    \tExample: "inspect inventory" or "inspect room"
-    
+    \tExamine something closely
     [b]Look [target][/b]
-    \tObserve your surroundings or examine something.
-    \tTargets: inventory, room, or any item/object
-    \tExample: "look room" or "look inventory"
-    
-    [b]Pickup [item_name][/b]
-    \tTake an item from the current room and add it to your inventory.
-    \tExample: "pickup star key"
-    
-    [b]Search [target][/b]
-    \tSearch the room or a specific area for items or clues.
-    \tExample: "search" or "search room"
-    
+    \tLook at something or around the room
+    [b]Pickup [item][/b]
+    \tPick up an item
+    [b]Search[/b]
+    \tSearch the current room for items
+    [b]Use [item] on [target][/b]
+    \tUse an item on something
+    [b]Go [door/direction][/b]
+    \tMove through a door or passage
     [b]Help[/b]
-    \tShow this help menu with all available commands.
-    
-    [u]Tips:[/u]
-    • You can chain commands with semicolons: "look room; search; pickup key"
-    • Commands are case-insensitive
-    • Use specific item names when picking up or dropping items[/left]"""
+    \tShow this menu[/left]"""
     
     signals.message.emit(help_message)
-#endregion
 
+func inspect(target_str: String) -> void:
+    if not target_str:
+        signals.message.emit("Inspect what?")
+        return
+    
+    match target_str.to_lower():
+        "inventory":
+            signals.message.emit("Your belongings.")
+        "room":
+            if player.current_room:
+                signals.message.emit(player.current_room.inspect() if player.current_room.has_method("inspect") else player.current_room.look())
+        _:
+            var target = _find_target(target_str)
+            if target and target.has_method("inspect"):
+                signals.message.emit(target.inspect())
+            else:
+                signals.message.emit("There's nothing like that here.")
+
+func look(target_str: String) -> void:
+    if not target_str:
+        # Look around the room
+        if player.current_room:
+            signals.message.emit(player.current_room.look())
+        return
+    
+    match target_str.to_lower():
+        "inventory":
+            signals.message.emit(player.get_inventory_display())
+        "room":
+            if player.current_room:
+                signals.message.emit(player.current_room.look())
+        _:
+            var target = _find_target(target_str)
+            if target and target.has_method("inspect"):
+                signals.message.emit(target.inspect())
+            else:
+                signals.message.emit("There's nothing like that here.")
+
+func pickup(target_str: String) -> void:
+    if not target_str:
+        signals.message.emit("Pick up what?")
+        return
+    
+    if not player.can_add_item():
+        signals.message.emit("You're carrying too much to pick up anything else.")
+        return
+    
+    var item = player.current_room.pickup_item(target_str)
+    if not item:
+        signals.message.emit("Hrm... No %s here" % [target_str])
+        return
+    
+    if player.add_item(item):
+        signals.message.emit("The [color=yellow]%s[/color] was placed into your bag." % item.get_display_name())
+    else:
+        # Put it back if we couldn't add it
+        player.current_room.drop_item(item)
+        signals.message.emit("You couldn't pick up the %s." % item.get_display_name())
+
+func search(target_str: String = "") -> void:
+    if not target_str or target_str.to_lower() == "room":
+        if player.current_room:
+            signals.message.emit(player.current_room.search())
+        return
+    
+    var target = _find_target(target_str)
+    if target and target.has_method("search"):
+        signals.message.emit(target.search())
+    else:
+        signals.message.emit("Cannot search that!")
+
+func use_item(command_str: String) -> void:
+    # Parse "item on target" or just "item"
+    var parts = command_str.split(" on ", false, 1)
+    if parts.size() < 2:
+        signals.message.emit("Use what on what? Try: use [item] on [target]")
+        return
+    
+    var item_name = parts[0].strip_edges()
+    var target_name = parts[1].strip_edges()
+    
+    # Find the item in player's inventory
+    var item = player.find_item_by_name(item_name)
+    if not item:
+        signals.message.emit("You don't have a %s." % item_name)
+        return
+    
+    # Find the target
+    var target = _find_target(target_name)
+    if not target:
+        signals.message.emit("There's no %s here." % target_name)
+        return
+    
+    # Try to use the item on the target
+    var result = item.use_on(target, player)
+    signals.message.emit(result)
+
+func go_through(target_str: String) -> void:
+    if not target_str:
+        signals.message.emit("Go through what?")
+        return
+    
+    var door = player.current_room.get_door_by_name(target_str)
+    if not door:
+        signals.message.emit("There's no %s here." % target_str)
+        return
+    
+    var result = door.use_door(player)
+    signals.message.emit(result)
+    
+    if door.can_pass_through():
+        Game.move_player_through_door(player, door)
+
+func _find_target(target_name: String) -> Node:
+    # First check player inventory
+    var item = player.find_item_by_name(target_name)
+    if item:
+        return item
+    
+    # Then check current room
+    if player.current_room:
+        return player.current_room.find_entity_by_name(target_name)
+    
+    return null
+#endregion
 
 #region Private Functions
 func _connect_signals() -> void:
     signals.command.connect(_on_command)
     signals.message.connect(_on_message)
 
-
 func _on_message(msg: String) -> void:
     if history.size() >= max_history_size:
         history.pop_back()
-        
-    history.append(msg)
     
+    history.append(msg)
 
-func _on_update_room(room: Room) -> void:
+func _on_update_room(room: RoomNode) -> void:
     if Game.local_player.current_room == room:
         _on_message("Something happened in your room.")
 #endregion
