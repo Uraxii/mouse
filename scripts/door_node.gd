@@ -1,18 +1,18 @@
 class_name DoorNode extends Node
 
+# Door properties - directly editable in inspector
 @export var display_name: String = "Door"
-@export var description: String = "A sturdy wooden door."
+@export_multiline var description: String = "A sturdy wooden door."
 @export var destination_room_id: int = -1
 @export var is_locked: bool = false
 @export var required_key_tags: Array[String] = []
 @export var required_key_name: String = ""
-@export var unlock_message: String = "The door unlocks with a satisfying click."
-@export var already_unlocked_message: String = "The door is already unlocked."
-@export var wrong_key_message: String = "The key doesn't fit this door."
-@export var locked_message: String = "The door is locked."
+@export_multiline var unlock_message: String = "The door unlocks with a satisfying click."
+@export_multiline var already_unlocked_message: String = "The door is already unlocked."
+@export_multiline var wrong_key_message: String = "The key doesn't fit this door."
+@export_multiline var locked_message: String = "The door is locked."
 
-signal door_unlocked(door: DoorNode, key_used: ItemNode)
-signal door_used(door: DoorNode, user: Player)
+@onready var signals := Global.signals
 
 #region Public Interface
 func get_display_name() -> String:
@@ -39,14 +39,14 @@ func try_unlock_with_key(key_item: ItemNode) -> String:
         return wrong_key_message
     
     is_locked = false
-    door_unlocked.emit(self, key_item)
+    # Door unlocked signal is emitted by the room that contains this door
     return unlock_message
 
 func use_door(user: Player) -> String:
     if is_locked:
         return locked_message
     
-    door_used.emit(self, user)
+    # Door used signal is emitted by the room that contains this door
     return "You pass through the %s." % display_name
 
 func get_destination_id() -> int:
@@ -70,4 +70,7 @@ func _key_matches(key_item: ItemNode) -> bool:
 #region Godot Callbacks
 func _ready() -> void:
     name = display_name.replace(" ", "_")
+    
+    if destination_room_id < 0:
+        push_warning("Door %s has no destination room set!" % name)
 #endregion

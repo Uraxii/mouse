@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://dqpwehwje5f1v"]
+
+[ext_resource type="Script" uid="uid://dxt8lt2qx0xir" path="res://scripts/map_node.gd" id="1_lctkj"]
+
+[node name="Map000" type="Node"]
+script = ExtResource("1_lctkj")
+time_remaining = null
+map_title = "Tutorial"
+map_description = null

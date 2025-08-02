@@ -1,54 +1,75 @@
 class_name RoomNode extends Node
 
-@export var room_data := Room.new()
+# Room properties - directly editable in inspector
+@export var room_id: int = -1
+@export var display_name: String = "Room"
+@export_multiline var description: String = ""
+@export_multiline var entrance_text: String = "You enter an unassuming room."
+@export_multiline var empty_room_text: String = "There's nothing here besides dust and an uneasy feeling."
+@export_multiline var search_text: String = "Nothing important is here."
+@export var tags: Array[String] = []
 
-@onready var inventory_container: Node = %Inventory
-@onready var doors_container: Node = %Doors
-@onready var npcs_container: Node = %NPCs
-
-signal player_entered(player: Player)
-signal player_exited(player: Player)
+# Node containers - automatically found by unique names
+@onready var inventory_container: Node = $Inventory
+@onready var doors_container: Node = $Doors
+@onready var npcs_container: Node = $NPCs
+@onready var signals := Global.signals
 
 var players_in_room: Array[Player] = []
 
 #region Public Interface
 func get_id() -> int:
-    return room_data.id if room_data else -1
+    return room_id
 
 func get_display_name() -> String:
-    return room_data.display_name if room_data else "Unknown Room"
+    return display_name
 
 func look() -> String:
-    if not room_data:
-        return "You can't make out anything in this strange void."
-    return room_data.look()
+    var result = "You observe the room.\n" + description
+    
+    # Add door information
+    var doors = get_doors()
+    if doors.size() > 0:
+        result += "\n\nYou can see:"
+        for door in doors:
+            var door_desc = "- A [color=cyan]%s[/color]" % door.get_display_name().to_lower()
+            if door.is_locked:
+                door_desc += " (locked)"
+            result += "\n" + door_desc
+    
+    return result
+
+func inspect() -> String:
+    signals.room_inspected.emit(self, Game.local_player)
+    return description
 
 func search() -> String:
     var items = get_items()
     if items.is_empty():
-        return room_data.empty_room_text if room_data else "There's nothing here."
+        signals.room_searched.emit(self, Game.local_player)
+        return "You search the room.\n" + empty_room_text
     
     if items.size() == 1:
+        signals.room_searched.emit(self, Game.local_player)
         return "You found a [color=yellow]%s[/color]!" % [items[0].get_display_name()]
     
     var out_str = "There are a few things in here...\n"
     for item in items:
         out_str += "- [color=yellow]%s[/color]\n" % item.get_display_name()
     
+    signals.room_searched.emit(self, Game.local_player)
     return out_str
 
 func pickup_item(item_name: String) -> ItemNode:
     for child in inventory_container.get_children():
         if child is ItemNode and child.get_display_name().to_lower() == item_name.to_lower():
             if child.can_be_picked_up():
-                # Remove from parent instead of reparenting to null
                 child.get_parent().remove_child(child)
                 return child
     return null
 
 func drop_item(item_node: ItemNode) -> void:
     if item_node and inventory_container:
-        # Only add as child if it doesn't already have this as a parent
         if item_node.get_parent() != inventory_container:
             inventory_container.add_child(item_node)
 
@@ -94,29 +115,31 @@ func find_entity_by_name(entity_name: String) -> Node:
 func add_player(player: Player) -> void:
     if player not in players_in_room:
         players_in_room.append(player)
-        player_entered.emit(player)
+        signals.player_entered_room.emit(player, self)
 
 func remove_player(player: Player) -> void:
     if player in players_in_room:
         players_in_room.erase(player)
-        player_exited.emit(player)
+        signals.player_exited_room.emit(player, self)
 #endregion
 
 #region Godot Callbacks
 func _ready() -> void:
-    if not room_data:
-        push_warning("RoomNode has no room_data assigned!")
-        return
+    if room_id < 0:
+        push_warning("Room %s has invalid id!" % name)
     
-    _populate_from_resource()
+    # Connect door signals
+    for door in get_doors():
+        if not door.door_unlocked.is_connected(_on_door_unlocked):
+            door.door_unlocked.connect(_on_door_unlocked)
+        if not door.door_used.is_connected(_on_door_used):
+            door.door_used.connect(_on_door_used)
 
-func _populate_from_resource() -> void:
-    if not room_data or not room_data.inventory:
-        return
-    
-    # Convert resource items to item nodes
-    for item_resource in room_data.inventory.items:
-        var item_node = ItemNode.new()
-        item_node.item_data = item_resource
-        inventory_container.add_child(item_node)
+func _on_door_unlocked(door: DoorNode, key_used: ItemNode) -> void:
+    print_debug("Door %s was unlocked with %s" % [door.get_display_name(), key_used.get_display_name()])
+    signals.door_unlocked.emit(door, key_used, Game.local_player)
+
+func _on_door_used(door: DoorNode, user: Player) -> void:
+    print_debug("Player %s used door %s" % [user.display_name, door.get_display_name()])
+    signals.door_used.emit(door, user)
 #endregion

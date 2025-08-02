@@ -1,7 +1,10 @@
-# scripts/globals/game_manager.gd
+# scripts/globals/game_manager.gd - Updated for node-based maps
 class_name GameManager extends Node
 
 @onready var signals := Global.signals
+
+var autoload_map_scene: PackedScene = preload("res://scenes/map_000.tscn")
+@export var autoload_map_id: String = "main"
 
 var current_map: MapNode
 var maps: Dictionary = {}  # map_id -> MapNode
@@ -11,14 +14,18 @@ var local_player: Player = null
 var players: Array[Player] = []
 
 #region Public Interface
-func load_map(map_resource: Map, map_id: String = "main") -> MapNode:
+func load_map_scene(map_scene_path: String, map_id: String = "main") -> MapNode:
     # Unload current map if exists
     if current_map:
         unload_map()
     
-    # Create new map node
-    var map_node = MapNode.new()
-    map_node.map_data = map_resource
+    # Load the map scene
+    var map_scene = load(map_scene_path)
+    if not map_scene:
+        push_error("Failed to load map scene: %s" % map_scene_path)
+        return null
+    
+    var map_node: MapNode = map_scene.instantiate()
     map_node.name = "Map_%s" % map_id
     
     # Add to scene and track
@@ -30,6 +37,29 @@ func load_map(map_resource: Map, map_id: String = "main") -> MapNode:
     map_node.map_loaded.connect(_on_map_loaded)
     
     print_debug("Loaded map: %s" % map_id)
+    return map_node
+
+func load_map_scene_resource(map_scene_resource: PackedScene, map_id: String = "main") -> MapNode:
+    # Unload current map if exists
+    if current_map:
+        unload_map()
+    
+    if not map_scene_resource:
+        push_error("Map scene resource is null!")
+        return null
+    
+    var map_node: MapNode = map_scene_resource.instantiate()
+    map_node.name = "Map_%s" % map_id
+    
+    # Add to scene and track
+    add_child(map_node)
+    maps[map_id] = map_node
+    current_map = map_node
+    
+    # Connect map signals
+    map_node.map_loaded.connect(_on_map_loaded)
+    
+    print_debug("Loaded map from resource: %s" % map_id)
     return map_node
 
 func unload_map(map_id: String = "") -> void:
@@ -77,7 +107,7 @@ func move_player(player: Player, destination: RoomNode) -> void:
     player.move_to_room(destination)
     
     if player == local_player:
-        var msg = destination.room_data.entrance_text if destination.room_data else "You enter a mysterious place."
+        var msg = destination.entrance_text if not destination.entrance_text.is_empty() else "You enter %s." % destination.get_display_name()
         signals.message.emit(msg)
 
 func move_player_through_door(player: Player, door: DoorNode) -> bool:
@@ -101,11 +131,12 @@ func _ready() -> void:
 
 #region Private Functions
 func _on_start_game() -> void:
-    # Global.signals.message.emit("Hello from the Game Manager :p")
-    
-    # Load the main map
-    var main_map_resource = preload("res://resources/maps/m1/m1.tres")
-    load_map(main_map_resource, "main")
+    # Check if autoload map is set
+    if autoload_map_scene:
+        load_map_scene_resource(autoload_map_scene, autoload_map_id)
+    else:
+        # Fallback to hardcoded map
+        load_map_scene("res://scenes/maps/tutorial_map.tscn", "tutorial")
     
     local_player = _create_player()
     
@@ -140,9 +171,4 @@ func _on_map_loaded() -> void:
     if current_map:
         var stats = current_map.get_map_stats()
         print_debug("Map Stats: %s" % str(stats))
-        
-        # Load objectives from the map
-        if current_map.map_data and current_map.map_data.objectives.size() > 0:
-            Global.objectives.load_map_objectives(current_map.map_data.objectives)
-            print_debug("Loaded %d objectives from map" % current_map.map_data.objectives.size())
 #endregion
