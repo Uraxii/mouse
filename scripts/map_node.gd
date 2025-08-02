@@ -1,5 +1,4 @@
-# scripts/nodes/map_node.gd - Updated to load room scenes
-class_name MapNode extends Node2D
+class_name MapNode extends Node
 
 @export var map_data: Map
 @export var time_remaining: int = 100

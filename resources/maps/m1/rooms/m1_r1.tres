@@ -19,9 +19,9 @@ metadata/_custom_type_script = "uid://dba7765ayqxv2"
 script = ExtResource("1_e3sk3")
 id = 0
 display_name = "Bedroom"
-description = "The only things here are a bed and cracked cobblestone walls.
+description = "You're back in the room you woke up in."
+entrance_text = "The only things here are a bed and cracked cobblestone walls.
 Maybe you'll find something helpful if you [color=cyan]search[/color] the [color=yellow]room[/color]."
-entrance_text = "You're back in the room you woke up in."
 empty_room_text = "There's nothing here besides dust and an uneasy feeling."
 search_text = "The room is musty... and humid... some ground water seeps through the stone walls."
 connections = Array[int]([])

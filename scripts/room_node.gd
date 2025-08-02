@@ -41,13 +41,16 @@ func pickup_item(item_name: String) -> ItemNode:
     for child in inventory_container.get_children():
         if child is ItemNode and child.get_display_name().to_lower() == item_name.to_lower():
             if child.can_be_picked_up():
-                child.reparent(null)  # Remove from room
+                # Remove from parent instead of reparenting to null
+                child.get_parent().remove_child(child)
                 return child
     return null
 
 func drop_item(item_node: ItemNode) -> void:
-    if item_node:
-        item_node.reparent(inventory_container)
+    if item_node and inventory_container:
+        # Only add as child if it doesn't already have this as a parent
+        if item_node.get_parent() != inventory_container:
+            inventory_container.add_child(item_node)
 
 func get_items() -> Array[ItemNode]:
     var items: Array[ItemNode] = []

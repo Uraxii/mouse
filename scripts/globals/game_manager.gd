@@ -101,7 +101,7 @@ func _ready() -> void:
 
 #region Private Functions
 func _on_start_game() -> void:
-    Global.signals.message.emit("Hello from the Game Manager :p")
+    # Global.signals.message.emit("Hello from the Game Manager :p")
     
     # Load the main map
     var main_map_resource = preload("res://resources/maps/m1/m1.tres")
@@ -140,4 +140,9 @@ func _on_map_loaded() -> void:
     if current_map:
         var stats = current_map.get_map_stats()
         print_debug("Map Stats: %s" % str(stats))
+        
+        # Load objectives from the map
+        if current_map.map_data and current_map.map_data.objectives.size() > 0:
+            Global.objectives.load_map_objectives(current_map.map_data.objectives)
+            print_debug("Loaded %d objectives from map" % current_map.map_data.objectives.size())
 #endregion

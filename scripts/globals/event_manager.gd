@@ -1,4 +1,3 @@
-# scripts/globals/event_manager.gd
 class_name EventManager
 
 var max_history_size := 100
@@ -132,6 +131,8 @@ func pickup(target_str: String) -> void:
     
     if player.add_item(item):
         signals.message.emit("The [color=yellow]%s[/color] was placed into your bag." % item.get_display_name())
+        # Emit objective progress for pickup actions
+        signals.objective_progress.emit("pickup", target_str)
     else:
         # Put it back if we couldn't add it
         player.current_room.drop_item(item)
@@ -141,11 +142,14 @@ func search(target_str: String = "") -> void:
     if not target_str or target_str.to_lower() == "room":
         if player.current_room:
             signals.message.emit(player.current_room.search())
+            # Emit objective progress for search actions
+            signals.objective_progress.emit("search", "room")
         return
     
     var target = _find_target(target_str)
     if target and target.has_method("search"):
         signals.message.emit(target.search())
+        signals.objective_progress.emit("search", target_str)
     else:
         signals.message.emit("Cannot search that!")
 
@@ -174,6 +178,9 @@ func use_item(command_str: String) -> void:
     # Try to use the item on the target
     var result = item.use_on(target, player)
     signals.message.emit(result)
+    
+    # Emit objective progress for use actions
+    signals.objective_progress.emit("use", item_name + " on " + target_name)
 
 func go_through(target_str: String) -> void:
     if not target_str:
