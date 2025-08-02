@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bi2c5np583jai" path="res://scripts/globals/interface/interface.gd" id="1_tg63u"]
 [ext_resource type="Script" uid="uid://dy7160axsagmg" path="res://scripts/globals/interface/view_history.gd" id="2_lw6my"]
 [ext_resource type="Script" uid="uid://h228e8on2ffq" path="res://scripts/globals/interface/view_narration.gd" id="2_t72xj"]
-[ext_resource type="Script" uid="uid://cyvoly35u8tlu" path="res://scripts/globals/interface/input.gd" id="4_s0di0"]
+[ext_resource type="Script" uid="uid://cyvoly35u8tlu" path="res://scripts/globals/interface/command_input.gd" id="4_s0di0"]
 
 [node name="Interface" type="Control"]
 layout_mode = 3

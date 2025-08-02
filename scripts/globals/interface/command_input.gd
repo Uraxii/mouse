@@ -7,6 +7,13 @@ class_name CommandInput extends TextEdit
 
 func _ready() -> void:
     submit_button.pressed.connect(_on_submit)
+
+
+func _gui_input(event: InputEvent) -> void:
+    if event is InputEventKey and event.pressed:
+        if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+            _on_submit()
+            get_viewport().set_input_as_handled()
     
     
 func _on_submit() -> void:
