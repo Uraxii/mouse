@@ -1,7 +1,19 @@
-[gd_resource type="Resource" script_class="Objective" load_steps=6 format=3 uid="uid://ch67wnx6e26x2"]
+[gd_resource type="Resource" script_class="Objective" load_steps=7 format=3 uid="uid://ch67wnx6e26x2"]
 
 [ext_resource type="Script" uid="uid://dg56cjrknw6ow" path="res://scripts/resources/objective.gd" id="1_sfbvn"]
 [ext_resource type="Script" uid="uid://c4bk8xg2c0lj4" path="res://scripts/resources/task.gd" id="2_g7jgl"]
+
+[sub_resource type="Resource" id="Resource_8ypuj"]
+script = ExtResource("2_g7jgl")
+id = ""
+description = "[color=cyan]Search[/color] the [color=gold]room[/color]."
+trigger_type = "search"
+target = ""
+secondary_target = ""
+completion_message = "Hey! That might be the key to open the door! You should [color=cyan]pickup[/color] the [color=gold]Star Key[/color]."
+hint_message = ""
+is_completed = false
+metadata/_custom_type_script = "uid://c4bk8xg2c0lj4"
 
 [sub_resource type="Resource" id="Resource_anpmy"]
 script = ExtResource("2_g7jgl")
@@ -43,7 +55,7 @@ metadata/_custom_type_script = "uid://c4bk8xg2c0lj4"
 script = ExtResource("1_sfbvn")
 title = "Escape the Room"
 description = "Get out of the room."
-tasks = Array[ExtResource("2_g7jgl")]([SubResource("Resource_anpmy"), SubResource("Resource_jhde1"), SubResource("Resource_jkblt")])
+tasks = Array[ExtResource("2_g7jgl")]([SubResource("Resource_8ypuj"), SubResource("Resource_anpmy"), SubResource("Resource_jhde1"), SubResource("Resource_jkblt")])
 auto_start = true
 is_active = false
 is_completed = false
