@@ -1,6 +1,6 @@
 class_name MapNode extends Node
 
-@export var time_remaining: int = 100
+@export var time_remaining: int = 3
 @export var map_title: String = "Untitled Map"
 @export_multiline var map_description: String = ""
 @export var objectives: Array[Objective] = []
@@ -41,19 +41,6 @@ func remove_room_node(room_node: RoomNode) -> void:
         room_lookup.erase(room_node.get_id())
     room_node.queue_free()
 
-func validate_connections() -> bool:
-    var valid = true
-    
-    for room in get_all_rooms():
-        # Check door destinations
-        for door in room.get_doors():
-            var dest_id = door.get_destination_id()
-            if dest_id >= 0 and not get_room_by_id(dest_id):
-                push_error("Room %d has door pointing to non-existent room %d" % [room.get_id(), dest_id])
-                valid = false
-    
-    return valid
-
 func get_map_stats() -> Dictionary:
     var rooms = get_all_rooms()
     return {
@@ -71,26 +58,29 @@ func get_objectives() -> Array[Objective]:
 
 #region Godot Callbacks
 func _ready() -> void:
-    # Build room lookup
+    signals.pass_time.connect(_on_pass_time)
+    
     for room in get_all_rooms():
         room_lookup[room.get_id()] = room
     
-    # Load objectives into the objective manager
     if objectives.size() > 0:
         Global.objectives.load_map_objectives(objectives)
-    
-    # Validate connections after a frame
-    call_deferred("_post_load_validation")
-
-func _post_load_validation() -> void:
-    if validate_connections():
-        print_debug("Map '%s' loaded successfully with %d rooms and %d objectives" % [map_title, get_all_rooms().size(), objectives.size()])
-        signals.map_loaded.emit(self)
-    else:
-        push_error("Map validation failed!")
 #endregion
 
 #region Private Functions
+func _on_pass_time(amount: int) -> void:
+    time_remaining -= amount
+    print_debug(
+        "time passed by %d. Only %d remains." % [amount, time_remaining])
+        
+    if time_remaining > 0:
+        return
+        
+    time_remaining = 0
+    signals.message.emit("[color=red]Times out![/color]")
+    signals.
+        
+
 func _count_total_items() -> int:
     var total = 0
     for room in get_all_rooms():
@@ -109,13 +99,4 @@ func _on_room_player_entered(player: Player) -> void:
 func _on_room_player_exited(player: Player) -> void:
     print_debug("Player %s exited room" % [player.display_name])
 
-func _on_time_tick() -> void:
-    if time_remaining > 0:
-        time_remaining -= 1
-        
-        if time_remaining <= 0:
-            _on_time_expired()
-
-func _on_time_expired() -> void:
-    print_debug("Time expired on map!")
 #endregion

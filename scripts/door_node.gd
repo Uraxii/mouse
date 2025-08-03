@@ -3,7 +3,7 @@ class_name DoorNode extends Node
 # Door properties - directly editable in inspector
 @export var display_name: String = "Door"
 @export_multiline var description: String = "A sturdy wooden door."
-@export var destination_room_id: int = -1
+@export var destination_room: Node
 @export var is_locked: bool = false
 @export var required_key_name: String = ""
 @export var required_key_tags: Array[String] = []
@@ -50,8 +50,8 @@ func use_door(user: Player) -> String:
     signals.door_used.emit(self, user)
     return "You pass through the %s." % display_name
 
-func get_destination_id() -> int:
-    return destination_room_id
+func get_destination_id() ->Node:
+    return destination_room
 
 
 func has_tag(tag: String) -> bool:
@@ -76,6 +76,6 @@ func _key_matches(key_item: ItemNode) -> bool:
 func _ready() -> void:
     name = display_name.replace(" ", "_")
 
-    if destination_room_id < 0:
+    if not destination_room:
         push_warning("Door %s has no destination room set!" % name)
 #endregion

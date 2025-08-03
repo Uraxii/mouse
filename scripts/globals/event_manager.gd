@@ -48,6 +48,8 @@ func _on_command(cmd: Command) -> void:
             Global.objectives.show_current_objectives()
         _:
             signals.message.emit("You don't know how to %s" % [cmd])
+        
+    signals.pass_time.emit(1)
 
 
 func drop(item_name: String) -> void:

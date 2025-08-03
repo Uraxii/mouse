@@ -4,6 +4,9 @@ class_name SignalBus
 @warning_ignore("unused_signal")
 signal start_game()
 
+@warning_ignore("unused_signal")
+signal pass_time(amount: int)
+
 # UI and messaging signals
 @warning_ignore("unused_signal")
 signal message(msg: String)

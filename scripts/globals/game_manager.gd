@@ -5,7 +5,7 @@ class_name GameManager extends Node
 @onready var signals := Global.signals
 
 var autoload_map_scene: PackedScene = preload(
-    "res://map_data/map_000/map_000.tscn")
+    "res://map_data/map_001/map_001.tscn")
     
 var current_map: MapNode
 var maps: Dictionary = {}  # map_id -> MapNode
@@ -115,12 +115,11 @@ func move_player_through_door(player: Player, door: DoorNode) -> bool:
         _handle_map_exit(player, door)
         return true
     
-    var destination_room = get_room_by_id(door.get_destination_id())
-    if not destination_room:
+    if not door.destination_room:
         signals.message.emit("The door leads nowhere...")
         return false
     
-    move_player(player, destination_room)
+    move_player(player, door.destination_room)
     return true
 
 func _handle_map_exit(player: Player, door: DoorNode) -> void:
