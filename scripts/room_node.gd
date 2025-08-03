@@ -127,6 +127,4 @@ func remove_player(player: Player) -> void:
 func _ready() -> void:
     if room_id < 0:
         push_warning("Room %s has invalid id!" % name)
-    
-    # Remove direct door signal connections - everything goes through signal bus now
 #endregion
