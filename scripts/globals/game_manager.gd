@@ -1,10 +1,12 @@
 class_name GameManager extends Node
 
-@onready var signals := Global.signals
-
-var autoload_map_scene: PackedScene = preload("res://scenes/map_000.tscn")
 @export var autoload_map_id: String = "main"
 
+@onready var signals := Global.signals
+
+var autoload_map_scene: PackedScene = preload(
+    "res://map_data/map_000/map_000.tscn")
+    
 var current_map: MapNode
 var maps: Dictionary = {}  # map_id -> MapNode
 
