@@ -35,10 +35,10 @@ func can_pass_through() -> bool:
 func try_unlock_with_key(key_item: ItemNode) -> String:
     if not is_locked:
         return already_unlocked_message
-    
+
     if not _key_matches(key_item):
         return wrong_key_message
-    
+
     is_locked = false
     signals.door_unlocked.emit(self, key_item, Game.local_player)
     return unlock_message
@@ -46,13 +46,13 @@ func try_unlock_with_key(key_item: ItemNode) -> String:
 func use_door(user: Player) -> String:
     if is_locked:
         return locked_message
-    
+
     signals.door_used.emit(self, user)
     return "You pass through the %s." % display_name
 
 func get_destination_id() -> int:
     return destination_room_id
-    
+
 
 func has_tag(tag: String) -> bool:
     return tags.has(tag)
@@ -63,19 +63,19 @@ func _key_matches(key_item: ItemNode) -> bool:
     # Check by name first
     if required_key_name and key_item.get_display_name().to_lower() == required_key_name.to_lower():
         return true
-    
+
     # Check by tags
     for required_tag in required_key_tags:
         if key_item.has_tag(required_tag):
             return true
-    
+
     return false
 #endregion
 
 #region Godot Callbacks
 func _ready() -> void:
     name = display_name.replace(" ", "_")
-    
+
     if destination_room_id < 0:
         push_warning("Door %s has no destination room set!" % name)
 #endregion
